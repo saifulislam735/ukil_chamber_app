@@ -1,27 +1,30 @@
-// @ds-adherence-ignore -- React Native scaffold; not a web component
-import LawyerCard from "@/components/lawyers/LawyerCard";
-import { blogs, lawyers } from "@/data/mockData";
-import type { RootStackParamList } from "@/navigation/types";
-import { Colors, Radius, Shadow, Spacing } from "@/theme";
+import React from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors, Spacing, Radius, Shadow } from "@/theme";
+import { lawyers, blogs } from "@/data/mockData";
+import type { RootStackParamList } from "@/navigation/types";
+import LawyerCard from "@/components/lawyers/LawyerCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+const LOGO_TITLE = require("../../../assets/images/logo title.png");
+
 const STATS = [
-  { n: "10K+", label: "Satisfied Clients" },
-  { n: "1K+", label: "Expert Lawyers" },
-  { n: "98%", label: "Success Rate" },
+  { n: "10K+", en: "Satisfied Clients", bn: "সন্তুষ্ট ক্লায়েন্ট" },
+  { n: "1K+", en: "Expert Lawyers", bn: "দক্ষ আইনজীবী" },
+  { n: "98%", en: "Success Rate", bn: "সাফল্যের হার" },
 ];
 
 const FEATURES = [
@@ -29,49 +32,80 @@ const FEATURES = [
     icon: "search-outline" as const,
     color: Colors.primary,
     bg: Colors.primarySoft,
-    label: "Easy Search",
+    en: "Easy Search",
+    bn: "সহজ অনুসন্ধান",
   },
   {
     icon: "shield-checkmark-outline" as const,
     color: Colors.success,
-    bg: Colors.successSoft,
-    label: "Verified Experts",
+    bg: "#ECFDF3",
+    en: "Verified Experts",
+    bn: "যাচাইকৃত বিশেষজ্ঞ",
   },
   {
     icon: "calendar-outline" as const,
     color: "#BD9A2C",
-    bg: Colors.accentSoft,
-    label: "Easy Scheduling",
+    bg: "#FAF6EA",
+    en: "Easy Scheduling",
+    bn: "সহজ বুকিং",
   },
 ];
 
-export default function RnHomeScreen() {
+type Lang = "en" | "bn";
+
+export default function HomeScreen() {
   const nav = useNavigation<Nav>();
+  const { lang, setLang, t } = useLanguage();
+  const goLawyers = () => (nav as any).navigate("Lawyers");
+  const goBlog = () => (nav as any).navigate("Blog");
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* App bar */}
       <View style={s.appbar}>
-        <Text style={s.brand}>Ukil Chamber</Text>
-        <TouchableOpacity style={s.bell}>
-          <Ionicons
-            name="notifications-outline"
-            size={24}
-            color={Colors.textBody}
-          />
-        </TouchableOpacity>
+        <Image source={LOGO_TITLE} style={s.logo} resizeMode="contain" />
+        <View style={s.appbarRight}>
+          {/* Language toggle */}
+          <View style={s.langToggle}>
+            <TouchableOpacity
+              style={[s.langBtn, lang === "en" && s.langBtnOn]}
+              onPress={() => setLang("en")}
+            >
+              <Text style={[s.langTxt, lang === "en" && s.langTxtOn]}>EN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.langBtn, lang === "bn" && s.langBtnOn]}
+              onPress={() => setLang("bn")}
+            >
+              <Text style={[s.langTxt, lang === "bn" && s.langTxtOn]}>বাং</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={() => nav.navigate("Notifications")}>
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={Colors.textBody}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View style={s.hero}>
-          <Text style={s.heroTag}>Free first chat</Text>
-          <Text style={s.heroH}>Legal Help Made{""}Simple & Accessible</Text>
-          <TouchableOpacity
-            style={s.heroBtn}
-            onPress={() => nav.navigate("Main", undefined as any)}
-          >
-            <Text style={s.heroBtnTxt}>Find a Lawyer</Text>
+          <Text style={s.heroTag}>
+            {t("Free first chat", "বিনামূল্যে প্রথম পরামর্শ")}
+          </Text>
+          <Text style={s.heroH}>
+            {t(
+              "Legal Help Made\nSimple & Accessible",
+              "সহজ ও সুলভ\nআইনি সহায়তা",
+            )}
+          </Text>
+          <TouchableOpacity style={s.heroBtn} onPress={goLawyers}>
+            <Text style={s.heroBtnTxt}>
+              {t("Find a Lawyer", "আইনজীবী খুঁজুন")}
+            </Text>
             <Ionicons name="arrow-forward" size={16} color={Colors.onAccent} />
           </TouchableOpacity>
         </View>
@@ -79,35 +113,37 @@ export default function RnHomeScreen() {
         {/* Stats */}
         <View style={s.statsRow}>
           {STATS.map((st) => (
-            <View key={st.label} style={s.statCard}>
+            <View key={st.en} style={s.statCard}>
               <Text style={s.statN}>{st.n}</Text>
-              <Text style={s.statL}>{st.label}</Text>
+              <Text style={s.statL}>{t(st.en, st.bn)}</Text>
             </View>
           ))}
         </View>
 
         {/* Features */}
         <View style={s.sectionRow}>
-          <Text style={s.sectionT}>Why choose us</Text>
+          <Text style={s.sectionT}>
+            {t("Why choose us", "কেন আমাদের বেছে নেবেন")}
+          </Text>
         </View>
         <View style={s.featsRow}>
           {FEATURES.map((f) => (
-            <View key={f.label} style={s.feat}>
+            <View key={f.en} style={s.feat}>
               <View style={[s.featIc, { backgroundColor: f.bg }]}>
                 <Ionicons name={f.icon} size={20} color={f.color} />
               </View>
-              <Text style={s.featT}>{f.label}</Text>
+              <Text style={s.featT}>{t(f.en, f.bn)}</Text>
             </View>
           ))}
         </View>
 
         {/* Top lawyers */}
         <View style={s.sectionRow}>
-          <Text style={s.sectionT}>Top rated lawyers</Text>
-          <TouchableOpacity
-            onPress={() => nav.navigate("Main", undefined as any)}
-          >
-            <Text style={s.seeAll}>See all</Text>
+          <Text style={s.sectionT}>
+            {t("Top rated lawyers", "শীর্ষ আইনজীবী")}
+          </Text>
+          <TouchableOpacity onPress={goLawyers}>
+            <Text style={s.seeAll}>{t("See all", "সব দেখুন")}</Text>
           </TouchableOpacity>
         </View>
         {lawyers.slice(0, 3).map((l) => (
@@ -119,9 +155,12 @@ export default function RnHomeScreen() {
           </View>
         ))}
 
-        {/* Blog previews */}
+        {/* Blog */}
         <View style={s.sectionRow}>
-          <Text style={s.sectionT}>From the blog</Text>
+          <Text style={s.sectionT}>{t("From the blog", "ব্লগ থেকে")}</Text>
+          <TouchableOpacity onPress={goBlog}>
+            <Text style={s.seeAll}>{t("See all", "সব দেখুন")}</Text>
+          </TouchableOpacity>
         </View>
         {blogs.slice(0, 3).map((b) => (
           <TouchableOpacity
@@ -129,20 +168,17 @@ export default function RnHomeScreen() {
             style={[s.blogCard, Shadow.sm]}
             onPress={() => nav.navigate("BlogArticle", { blogId: b.id })}
           >
-            <Text style={s.blogCat}>{b.category}</Text>
-            <Text style={s.blogT}>{b.title_en}</Text>
-            <Text style={s.blogX} numberOfLines={2}>
-              {b.content_en}
-            </Text>
-            <View style={s.blogMeta}>
-              <Ionicons
-                name="calendar-outline"
-                size={13}
-                color={Colors.textSubtle}
-              />
+            <View style={s.blogCatRow}>
+              <Text style={s.blogCat}>{b.category}</Text>
               <Text style={s.blogDate}>{b.date}</Text>
-              <Text style={s.readMore}>Read more →</Text>
             </View>
+            <Text style={s.blogT}>
+              {lang === "bn" ? b.title_bn : b.title_en}
+            </Text>
+            <Text style={s.blogX} numberOfLines={2}>
+              {lang === "bn" ? b.content_bn : b.content_en}
+            </Text>
+            <Text style={s.readMore}>{t("Read more →", "আরও পড়ুন →")}</Text>
           </TouchableOpacity>
         ))}
 
@@ -158,27 +194,34 @@ const s = StyleSheet.create({
   appbar: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.gutter,
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: Colors.cardBackground,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderSubtle,
   },
-  brand: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "800",
-    color: Colors.textStrong,
-    letterSpacing: -0.3,
+  logo: { height: 32, width: 130 },
+  appbarRight: { flexDirection: "row", alignItems: "center", gap: 12 },
+  langToggle: {
+    flexDirection: "row",
+    backgroundColor: Colors.sunken,
+    borderRadius: Radius.pill,
+    padding: 3,
   },
-  bell: { padding: 4 },
-
+  langBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Radius.pill,
+  },
+  langBtnOn: { backgroundColor: Colors.cardBackground },
+  langTxt: { fontSize: 12, fontWeight: "600", color: Colors.textMuted },
+  langTxtOn: { color: Colors.primary },
   hero: {
     margin: Spacing[4],
     borderRadius: Radius.lg,
     padding: 20,
     backgroundColor: Colors.primary,
-    overflow: "hidden",
   },
   heroTag: {
     fontSize: 11,
@@ -206,7 +249,6 @@ const s = StyleSheet.create({
     alignSelf: "flex-start",
   },
   heroBtnTxt: { fontSize: 14, fontWeight: "700", color: Colors.onAccent },
-
   statsRow: {
     flexDirection: "row",
     gap: 10,
@@ -230,7 +272,6 @@ const s = StyleSheet.create({
     marginTop: 2,
     textAlign: "center",
   },
-
   sectionRow: {
     flexDirection: "row",
     alignItems: "baseline",
@@ -241,7 +282,6 @@ const s = StyleSheet.create({
   },
   sectionT: { fontSize: 17, fontWeight: "700", color: Colors.textStrong },
   seeAll: { fontSize: 13, fontWeight: "600", color: Colors.primary },
-
   featsRow: {
     flexDirection: "row",
     gap: 10,
@@ -271,9 +311,7 @@ const s = StyleSheet.create({
     color: Colors.textStrong,
     lineHeight: 16,
   },
-
   cardWrap: { paddingHorizontal: Spacing.gutter, marginBottom: 12 },
-
   blogCard: {
     marginHorizontal: Spacing.gutter,
     marginBottom: 12,
@@ -283,14 +321,20 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.borderSubtle,
   },
+  blogCatRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
   blogCat: {
     fontSize: 11,
     fontWeight: "700",
     color: Colors.primary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
-    marginBottom: 5,
   },
+  blogDate: { fontSize: 11, color: Colors.textSubtle },
   blogT: {
     fontSize: 15.5,
     fontWeight: "700",
@@ -299,12 +343,10 @@ const s = StyleSheet.create({
     marginBottom: 5,
   },
   blogX: { fontSize: 13, color: Colors.textMuted, lineHeight: 19 },
-  blogMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    marginTop: 10,
+  readMore: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: Colors.primary,
+    marginTop: 8,
   },
-  blogDate: { flex: 1, fontSize: 12, color: Colors.textSubtle },
-  readMore: { fontSize: 12, fontWeight: "600", color: Colors.primary },
 });

@@ -11,6 +11,7 @@ import BlogArticleScreen from "@/screens/blog/BlogArticleScreen";
 import LoginScreen from "@/screens/auth/LoginScreen";
 import BookingScreen from "@/screens/booking/BookingScreen";
 import BookingSuccessScreen from "@/screens/booking/BookingSuccessScreen";
+import NotificationsScreen from "@/screens/notifications/NotificationsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,11 +31,14 @@ export default function AppNavigator() {
         {/* Detail / overlay screens */}
         <Stack.Screen name="LawyerProfile" component={LawyerProfileScreen} />
         <Stack.Screen name="BlogArticle" component={BlogArticleScreen} />
+
         <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ animation: "slide_from_bottom", presentation: "modal" }}
         />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+
         <Stack.Screen name="Booking" component={BookingScreen} />
         <Stack.Screen name="BookingSuccess" component={BookingSuccessScreen} />
       </Stack.Navigator>

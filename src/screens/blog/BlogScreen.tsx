@@ -1,19 +1,20 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { blogs } from "@/data/mockData";
+import type { RootStackParamList } from "@/navigation/types";
+import { Colors, Radius, Shadow, Spacing } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Spacing, Radius, Shadow } from "@/theme";
-import { blogs } from "@/data/mockData";
-import type { RootStackParamList } from "@/navigation/types";
+import React, { useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -39,6 +40,7 @@ export default function BlogScreen() {
   const nav = useNavigation<Nav>();
   const [activeCat, setActiveCat] = useState("All");
   const [query, setQuery] = useState("");
+  const { lang, t } = useLanguage();
 
   const filtered = blogs.filter(
     (b) =>
@@ -49,8 +51,10 @@ export default function BlogScreen() {
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
       <View style={s.header}>
-        <Text style={s.headerTitle}>Legal Blog</Text>
-        <Text style={s.headerSub}>Insights from verified lawyers</Text>
+        <Text style={s.headerTitle}>{t("Legal Blog", "আইনি ব্লগ")}</Text>
+        <Text style={s.headerSub}>
+          {t("Insights from verified lawyers", "যাচাইকৃত আইনজীবীদের থেকে")}
+        </Text>
       </View>
 
       <View style={s.searchWrap}>
@@ -103,10 +107,13 @@ export default function BlogScreen() {
               <View style={[s.catBadge, { backgroundColor: cs.bg }]}>
                 <Text style={[s.catTxt, { color: cs.text }]}>{b.category}</Text>
               </View>
-              <Text style={s.cardTitle}>{b.title_en}</Text>
-              <Text style={s.cardExcerpt} numberOfLines={2}>
-                {b.content_en}
+              <Text style={s.cardTitle}>
+                {lang === "bn" ? b.title_bn : b.title_en}
               </Text>
+              <Text style={s.cardExcerpt} numberOfLines={2}>
+                {lang === "bn" ? b.content_bn : b.content_en}
+              </Text>
+
               <View style={s.cardFooter}>
                 <View style={s.cardMeta}>
                   <Ionicons
@@ -117,7 +124,9 @@ export default function BlogScreen() {
                   <Text style={s.cardDate}>{b.date}</Text>
                 </View>
                 <View style={s.readMore}>
-                  <Text style={s.readMoreTxt}>Read more</Text>
+                  <Text style={s.readMoreTxt}>
+                    {t("Read more", "আরও পড়ুন")}
+                  </Text>
                   <Ionicons
                     name="arrow-forward"
                     size={14}
@@ -167,12 +176,14 @@ const s = StyleSheet.create({
   searchInput: { flex: 1, fontSize: 14.5, color: Colors.textStrong },
   chips: { paddingHorizontal: Spacing.gutter, gap: 8, paddingBottom: 12 },
   chip: {
+    height: 36,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: Radius.pill,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: Colors.borderDefault,
     backgroundColor: Colors.cardBackground,
+    justifyContent: "center",
+    alignItems: "center",
   },
   chipOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   chipTxt: { fontSize: 13, fontWeight: "600", color: Colors.textBody },
